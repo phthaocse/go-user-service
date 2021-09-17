@@ -1,0 +1,6 @@
+[mysql]
+dbname = "user_service"
+user = "root"
+pass = "12345678x@X"
+host = "localhost"
+sslmode = "PREFERRED"

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  user-service-mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678x@X
+      MARIADB_DATABASE: user_service
+    ports:
+      - 3306:3306
+    volumes:
+      - user-service-mariadb:/var/lib/mysql
+volumes:
+  user-service-mariadb:
