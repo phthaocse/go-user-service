@@ -2,7 +2,6 @@ package server
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/phthaocse/user-service-go/config"
 	"github.com/phthaocse/user-service-go/db"
@@ -11,7 +10,7 @@ import (
 )
 
 type Server struct {
-	router *httprouter.Router
+	router  *httprouter.Router
 	handler *handlers.Handler
 }
 
@@ -32,11 +31,12 @@ func Start() {
 	if err != nil {
 		return
 	}
-	dbConnection, err = db.SetUp(globalConfig)
+
 	srv := createServer()
+	dbConnection, err = db.SetUp(globalConfig, srv.handler.Log)
 	srv.handler.Db = dbConnection
 
-	fmt.Println("Start running ...", globalConfig.ServerPort)
+	srv.handler.Log.Println("\033[46;1m", "Start running server on port", globalConfig.ServerPort, "\033[0m")
 	err = http.ListenAndServe(globalConfig.ServerPort, srv)
 	if err != nil {
 		return
