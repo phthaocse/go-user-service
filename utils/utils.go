@@ -13,3 +13,8 @@ func GetEnv(key, defaultValue string) string {
 		return os.Getenv(key)
 	}
 }
+
+func GetTestEnv(key, defaultValue string) string {
+	key = "TEST_" + key
+	return GetEnv(key, defaultValue)
+}

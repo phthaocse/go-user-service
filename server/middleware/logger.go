@@ -101,18 +101,18 @@ func formatDefault(params LogFormatterParams) string {
 		statusColor = params.StatusCodeColor()
 		resetColor = params.ResetColor()
 	}
-	if params.StatusCode == 0 {
-		return fmt.Sprintf("| %s %-7s %s %s",
-			methodColor, params.Method, resetColor,
-			params.Path,
-		)
-	}
-	return fmt.Sprintf(
-		"| %s %-7s %s %s %s %v %s %s",
+	requestLogFmt := fmt.Sprintf("| %s %-7s %s %s",
 		methodColor, params.Method, resetColor,
 		params.Path,
+	)
+	responseLogFmt := requestLogFmt + fmt.Sprintf(
+		"| %s %v %s %s",
 		statusColor, params.StatusCode, http.StatusText(params.StatusCode), resetColor,
 	)
+	if params.StatusCode == 0 {
+		return requestLogFmt
+	}
+	return responseLogFmt
 }
 
 func (r *LogResponseWriter) WriteHeader(code int) {

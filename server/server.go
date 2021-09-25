@@ -2,43 +2,52 @@ package server
 
 import (
 	"database/sql"
+	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 	"github.com/phthaocse/user-service-go/config"
 	"github.com/phthaocse/user-service-go/db"
-	"github.com/phthaocse/user-service-go/handlers"
+	"log"
 	"net/http"
+	"os"
 )
 
-type Server struct {
-	router  *httprouter.Router
-	handler *handlers.Handler
+type server struct {
+	router *httprouter.Router
+	db     *sql.DB
+	Log    *log.Logger
 }
 
-func createServer() *Server {
-	s := &Server{}
-	s.handler = handlers.CreateHandler()
-	s.setUpRouter()
-	return s
+func CreateServer() *server {
+	srv := &server{}
+	srv.Log = log.New(os.Stdout, "", log.LstdFlags)
+	srv.setUpRouter()
+	return srv
 }
 
-func (srv *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (srv *server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	srv.router.ServeHTTP(rw, req)
 }
 
 func Start() {
-	var dbConnection *sql.DB
-	globalConfig, err := config.SrvConfigSetup()
+
+	err := godotenv.Load()
 	if err != nil {
 		return
 	}
 
-	srv := createServer()
-	dbConnection, err = db.SetUp(globalConfig, srv.handler.Log)
-	srv.handler.Db = dbConnection
+	var dbConnection *sql.DB
+	globalConfig := config.GetSrvConfig()
 
-	srv.handler.Log.Println("\033[46;1m", "Start running server on port", globalConfig.ServerPort, "\033[0m")
+	srv := CreateServer()
+
+	dbConnection, dbTeardown, err := db.SetUp(globalConfig, srv.Log)
+	defer dbTeardown()
+	srv.db = dbConnection
+
+	srv.Log.Println("\033[46;1m", "Start running server on port", globalConfig.ServerPort, "\033[0m")
 	err = http.ListenAndServe(globalConfig.ServerPort, srv)
 	if err != nil {
+		srv.Log.Println(err)
 		return
 	}
 }

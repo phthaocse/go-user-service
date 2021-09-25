@@ -5,7 +5,7 @@ import (
 	"github.com/phthaocse/user-service-go/server/middleware"
 )
 
-func (srv *Server) setUpRouter() {
+func (srv *server) setUpRouter() {
 	srv.router = httprouter.New()
-	srv.router.POST("/user/register", middleware.HttprouterWrapper(middleware.Adapt(srv.handler.Register(), middleware.LogToConsole(srv.handler.Log))))
+	srv.router.POST("/user/register", middleware.HttprouterWrapper(middleware.Adapt(srv.Register(), middleware.LogToConsole(srv.Log))))
 }

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func SetUp(config *config.Config, log *log.Logger) (*sql.DB, error) {
+func SetUp(config *config.Config, log *log.Logger) (*sql.DB, func(), error) {
 	dbConfig := &mysql.Config{
 		User:                 config.DbUser,
 		Addr:                 config.DbAddr,
@@ -21,13 +21,16 @@ func SetUp(config *config.Config, log *log.Logger) (*sql.DB, error) {
 	db, err = sql.Open(config.DbDriver, dbUri)
 	if err != nil {
 		log.Println("Unable to connect to db with err: ", err)
-		return nil, err
+		return nil, nil, err
 	}
 	err = db.Ping()
 	if err != nil {
 		log.Println("Unable to connect to db with err: ", err)
-		return nil, err
+		return nil, nil, err
 	}
 	log.Println("Connect to db successfully")
-	return db, nil
+	teardownFunc := func() {
+		db.Close()
+	}
+	return db, teardownFunc, nil
 }
