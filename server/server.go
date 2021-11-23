@@ -30,9 +30,11 @@ func (srv *server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 func Start() {
 
-	err := godotenv.Load()
-	if err != nil {
-		return
+	if utils.GetEnv("ENV", "") == "DEV" {
+		err := godotenv.Load()
+		if err != nil {
+			return
+		}
 	}
 
 	var dbConnection *sql.DB
