@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-go
+spec:
+  selector:
+    matchLabels:
+      app: user-service-go
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: user-service-go
+    spec:
+      containers:
+      - name: user-service-go
+        image: phthao/user-service-go
+        ports:
+          - containerPort: 8080
+        env:
+          - name: DATABASE_NAME
+            value: user-service-db
+          - name: DATABASE_ADDRESS
+            value: user-service-db-mariadb.default.svc.cluster.local
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: user-service-db-mariadb
+                key: mariadb-root-password
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service-go-service
+spec:
+  selector:
+    app: user-service-go
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
