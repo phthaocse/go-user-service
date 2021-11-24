@@ -6,6 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/phthaocse/user-service-go/config"
 	"github.com/phthaocse/user-service-go/db"
+	"github.com/phthaocse/user-service-go/utils"
 	"log"
 	"net/http"
 	"os"
